@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Birthday</title>
+    <link rel="stylesheet" href="./style.css">
+    <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+</head>
+<body>
+    <div class="container">  
+        <div class="birthday">
+          <div class="envelope"></div>
+          <div class="front"></div>
+            <div id="card" class="card">
+                <div class="card-inner">
+                    <div class="card-front">Hit Me!</div>
+                    <div class="card-back">Happy Birthday</br> Livonne!
+                        <img src="corgi.png">
+                    </div>
+                </div>
+            </div>
+          </div>
+        </div>
+        <script>
+            function flipCard() {
+                console.log("flipping")
+                document.querySelector('.envelope').classList.add('hidden');
+                document.querySelector('.front').classList.add('hidden');
+                document.querySelector('.card').classList.toggle('flipped');
+
+                celebrate(.2, {
+                            spread: 30,
+                            startVelocity: 60
+                        });
+                        celebrate(.15, {spread: 60,});
+                        celebrate(.3, {spread: 100, decay: .9, scalar: 1});
+                        celebrate(.1, {
+                            spread: 130,
+                            startVelocity: 30,
+                            decay: .92,
+                            scalar: 1.2
+                        });
+                        celebrate(.15, {
+                            spread: 120,
+                            startVelocity: 45
+                        });
+            }
+
+            function celebrate(ratio, opt) {
+                confetti(Object.assign({}, opt, {
+                    origin: {y: .6},
+                    particleCount: Math.floor(300 * ratio)
+                }));
+            }
+            $(document).ready(function () {
+                // Check if the device is a mobile device
+                function isMobile() {
+                    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+                }
+
+                // Use hover for desktop and click for mobile
+                if (isMobile()) {
+                    $('.container').on('click', function () {
+                        flipCard();
+                    });
+                } else {
+                    $('.container').hover(
+                        function () {
+                            $('.card').stop().animate({
+                                top: '-90px'
+                            }, 'slow');
+                        },
+                        function () {
+                            $('.card').stop().animate({
+                                top: 0
+                            }, 'slow');
+                        }
+                    );
+                    $('.card').on('click', function () {
+                        flipCard();
+                        $('.container').off('mouseenter mouseleave');
+                    });
+                }
+            });
+        </script>
+</body>
+</html>
