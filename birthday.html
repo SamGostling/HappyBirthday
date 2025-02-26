@@ -17,20 +17,39 @@
             <div id="card" class="card">
                 <div class="card-inner">
                     <div class="card-front">Hit Me!</div>
-                    <div class="card-back">Happy Birthday</br> Livonne!
+                    <div id="birthday" class="card-back">Happy Birthday</br> Livonne!
                         <img src="corgi.png">
+                    </div>
+                    <div id="notBirthday" style="font-size: 20px; color: #b02219; --c1: #a99d94; --c2: #b02219;" class="card-back">
+                        It's Nearly time... <br> Click to play a game!
+                        <img src="shorthair.png">
                     </div>
                 </div>
             </div>
           </div>
         </div>
         <script>
+            // show birthday card if birthday otherwise show game card
+            function revealCard() {
+                const today = new Date();
+                const targetMonth = 2;
+                const targetDay = 16;
+
+                if ((today.getMonth() === targetMonth && today.getDate() >= targetDay)) {
+                    const notBirthday = document.getElementById("notBirthday");
+                    notBirthday.style.display = "none";
+                    return;
+                }
+                const birthday = document.getElementById("birthday");
+                birthday.style.display = "none";
+
+            }
             function flipCard() {
                 console.log("flipping")
                 document.querySelector('.envelope').classList.add('hidden');
                 document.querySelector('.front').classList.add('hidden');
+                revealCard();
                 document.querySelector('.card').classList.toggle('flipped');
-
                 celebrate(.2, {
                             spread: 30,
                             startVelocity: 60
@@ -64,6 +83,13 @@
                 // Use hover for desktop and click for mobile
                 if (isMobile()) {
                     $('.container').on('click', function () {
+                        if (clicked === false) {
+                            $('.card').stop().animate({
+                                    top: '-90px'
+                                }, 'slow');
+                            clicked = true;
+                            return;
+                        }
                         flipCard();
                     });
                 } else {
@@ -85,6 +111,8 @@
                     });
                 }
             });
+
+            // kitten code
         </script>
 </body>
 </html>
