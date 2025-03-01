@@ -8,9 +8,13 @@
     <link rel="stylesheet" href="./style.css">
     <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    <script src="https://open.spotify.com/embed/iframe-api/v1"></script>
 </head>
 <body>
-    <div class="container">  
+    <div class="container">
+        <div class="spotify-container">
+            <div style="position: absolute;width:0;height:0;border:0;" id="embed-iframe"></div>
+        </div>
         <div class="birthday">
           <div class="envelope"></div>
           <div class="front"></div>
@@ -28,7 +32,29 @@
             </div>
           </div>
         </div>
+        <div style="display: none;" class="cat-container" id="cat-container">
+            <img src="shorthairTalking.png" alt="Cat" class="cat-img">
+            <button class="next-button" id="next-button">Let's Play!</button>
+        </div>
+        <div style="display: none;" class="game-container" id="game-container">
+        </div>
         <script>
+            let birthdayGame = false;
+            let clicked = false;
+            let spotifyPlayer;
+            const gameContainer = document.getElementById('game-container');
+            const catContainer = document.getElementById('cat-container');
+
+            window.onSpotifyIframeApiReady = (IFrameAPI) => {
+                const element = document.getElementById('embed-iframe');
+                const options = {
+                    uri: 'spotify:playlist:1XQuPJcsKWpUOUAKFGkTrh',
+                };
+                IFrameAPI.createController(element, options, (controller) => {
+                    spotifyPlayer = controller;
+                });
+            };
+            
             // show birthday card if birthday otherwise show game card
             function revealCard() {
                 const today = new Date();
@@ -42,10 +68,19 @@
                 }
                 const birthday = document.getElementById("birthday");
                 birthday.style.display = "none";
+                birthdayGame = true;
 
             }
             function flipCard() {
-                console.log("flipping")
+                if (birthdayGame) {
+                    document.querySelector('.container').style.display = 'none';
+                    catContainer.style.display = "flex"
+                    playGame();
+                    return;
+                }
+                if (spotifyPlayer) {
+                    spotifyPlayer.play();
+                }
                 document.querySelector('.envelope').classList.add('hidden');
                 document.querySelector('.front').classList.add('hidden');
                 revealCard();
@@ -73,6 +108,54 @@
                     origin: {y: .6},
                     particleCount: Math.floor(300 * ratio)
                 }));
+            }
+
+            function playGame() {
+                document.getElementById('next-button').addEventListener('click', function() {
+                    console.log("flipping")
+                    gameContainer.style.display = "grid";
+                    catContainer.style.display = 'none';
+                });
+                
+                 // kitten code
+                const kittenImages = Array.from({ length: 9 }, () => `https://cataas.com/cat/gif?type=square`);
+                const prizeImages = [
+                    // Mr Krabs Money
+                    'https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExa2kwejdmbjBkbGJuYjFheXBnczBvMnp0cXBhYXI5dXdob3h2czhqNyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/LdOyjZ7io5Msw/giphy.gif',
+                    // Chloe Bag
+                    'https://www.chloe.com/product_image/22065645ux/f/w1536.jpg',
+                    // Mystery Prize
+                    'https://media2.giphy.com/media/v1.Y2lkPTc5MGI3NjExMms0MGhsNTVzbmlnZXc1NzE1MGR3bGt6Mm9uM3l0cGowa256Mjl0bCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/xUOxfjsW9fWPqEWouI/giphy.gif',
+                ];
+                
+                let gameLocked = false;
+
+                kittenImages.forEach((kitten, index) => {
+                    const box = document.createElement('div');
+                    box.classList.add('kitten-box');
+                    
+                    const img = document.createElement('img');
+                    img.src = kitten;
+                    img.alt = 'Cute Kitten';
+                    
+                    const prizeImg = document.createElement('img');
+                    prizeImg.src = prizeImages[Math.floor(Math.random() * prizeImages.length)];
+                    prizeImg.classList.add('prize');
+                    
+                    box.appendChild(img);
+                    box.appendChild(prizeImg);
+                    gameContainer.appendChild(box);
+
+                    box.addEventListener('click', () => {
+                        if (gameLocked) return;
+                        gameLocked = true;
+                        img.style.opacity = '0';
+                        setTimeout(() => {
+                            img.style.display = 'none';
+                            prizeImg.style.display = 'block';
+                        }, 1000);
+                    });
+                });
             }
             $(document).ready(function () {
                 // Check if the device is a mobile device
@@ -111,8 +194,6 @@
                     });
                 }
             });
-
-            // kitten code
         </script>
 </body>
 </html>
