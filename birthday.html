@@ -36,6 +36,8 @@
           </div>
         </div>
         <div class="game-container" id="game-container">
+            <div id="prize-message" class="prize-message">Here is your prize!</div>
+        </div>
         </div>
         <script>
             let birthdayGame = false;
@@ -58,18 +60,11 @@
             // show birthday card if birthday otherwise show game card
             function revealCard() {
                 const today = new Date();
-                const targetMonth = 2;
-                const targetDay = 16;
-
-                if ((today.getMonth() === targetMonth && today.getDate() >= targetDay)) {
-                    const notBirthday = document.getElementById("notBirthday");
-                    notBirthday.style.display = "none";
-                    return;
-                }
-                const birthday = document.getElementById("birthday");
-                birthday.style.display = "none";
-                birthdayGame = true;
-
+                const isBirthday = (today.getMonth() === 2 && today.getDate() >= 16);
+                
+                document.getElementById("notBirthday").style.display = isBirthday ? "none" : "flex";
+                document.getElementById("birthday").style.display = isBirthday ? "flex" : "none";
+                birthdayGame = !isBirthday;
             }
             function flipCard() {
                 if (instructionsRead) {
@@ -93,29 +88,24 @@
                 document.querySelector('.front').classList.add('hidden');
                 revealCard();
                 document.getElementById('card').classList.toggle('flipped');
-                celebrate(.2, {
-                            spread: 30,
-                            startVelocity: 60
-                        });
-                        celebrate(.15, {spread: 60,});
-                        celebrate(.3, {spread: 100, decay: .9, scalar: 1});
-                        celebrate(.1, {
-                            spread: 130,
-                            startVelocity: 30,
-                            decay: .92,
-                            scalar: 1.2
-                        });
-                        celebrate(.15, {
-                            spread: 120,
-                            startVelocity: 45
-                        });
+                celebrate();
             }
 
             function celebrate(ratio, opt) {
-                confetti(Object.assign({}, opt, {
-                    origin: {y: .6},
-                    particleCount: Math.floor(300 * ratio)
-                }));
+                const confettiSettings = [
+                    { spread: 30, startVelocity: 60 },
+                    { spread: 60 },
+                    { spread: 100, decay: 0.9, scalar: 1 },
+                    { spread: 130, startVelocity: 30, decay: 0.92, scalar: 1.2 },
+                    { spread: 120, startVelocity: 45 }
+                ];
+                confettiSettings.forEach(opt => {
+                    confetti({
+                        ...opt,
+                        origin: { y: 0.6 },
+                        particleCount: Math.floor(300 * 0.15)
+                    });
+                });
             }
 
             function playGame() {
@@ -133,12 +123,10 @@
                 ];
                 
                 let gameLocked = false;
-                let boxes = []
 
                 kittenImages.forEach((kitten, index) => {
                     const box = document.createElement('div');
                     box.classList.add('kitten-box');
-                    boxes.push(box);
                     
                     const img = document.createElement('img');
                     img.src = kitten;
@@ -147,24 +135,31 @@
                     const prizeImg = document.createElement('img');
                     prizeImg.src = prizeImages[Math.floor(Math.random() * prizeImages.length)];
                     prizeImg.classList.add('prize');
-                    
-                    box.appendChild(img);
-                    box.appendChild(prizeImg);
+
+                    box.append(img, prizeImg);
                     gameContainer.appendChild(box);
 
                     box.addEventListener('click', () => {
                         if (gameLocked) return;
                         gameLocked = true;
+                        
                         img.style.opacity = '0';
                         setTimeout(() => {
                             img.style.display = 'none';
                             prizeImg.style.display = 'block';
+                            const prizeMessage = document.getElementById("prize-message");
+                            prizeMessage.style.display = "block";
+                            gameContainer.style.display = "flex";
+                            gameContainer.style.flexDirection = "column";
+                            gameContainer.style.gridTemplateColumns = "unset";
+                            gameContainer.style.alignItems = "center";
+                            gameContainer.style.justifyContent = "center";
+                            prizeImg.style.alignItems = "center";
+                            prizeImg.style.justifyContent = "center";
                         }, 1000);
-                        boxes.forEach(b => {
-                            if (box !== b) {
-                                b.classList.add('hidden')
-                            }
-                        })
+                        document.querySelectorAll('.kitten-box').forEach(b => {
+                            if (b !== box) b.style.display = "none";
+                        });
                     });
                 });
             }
@@ -178,7 +173,7 @@
                 if (isMobile()) {
                     $('.container').on('click', function () {
                         if (clicked === false) {
-                            document.getElementById('card-id').stop().animate({
+                            $('#card').stop().animate({
                                     top: '-90px'
                                 }, 'slow');
                             clicked = true;

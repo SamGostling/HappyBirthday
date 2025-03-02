@@ -206,3 +206,39 @@ body {
   height: 0;
   overflow: hidden;
 }
+
+.prize-message {
+  display: none;
+  text-align: center;
+  font-size: 42px;
+  font-weight: bold;
+  color: #fff;
+  background: linear-gradient(45deg, #ff416c, #ff4b2b);
+  padding: 20px;
+  border-radius: 10px;
+  top: 50%;
+  left: 50%;
+  transform: translate(0%, 0%);
+  box-shadow: 0 0 15px rgba(255, 75, 43, 0.7);
+  animation: fadeIn 1.5s ease-in-out, glow 1.5s infinite alternate;
+}
+
+@keyframes fadeIn {
+  from {
+      opacity: 0;
+      transform: translate(0%, 0%);
+  }
+  to {
+      opacity: 1;
+      transform: translate(0%, 0%);
+  }
+}
+
+@keyframes glow {
+  from {
+      box-shadow: 0 0 10px rgba(255, 75, 43, 0.5);
+  }
+  to {
+      box-shadow: 0 0 20px rgba(255, 75, 43, 1);
+  }
+}
