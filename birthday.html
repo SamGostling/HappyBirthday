@@ -20,7 +20,7 @@
           <div class="front"></div>
             <div id="card" class="card">
                 <div class="card-inner">
-                    <div class="card-front">Hit Me!</div>
+                    <div id="hitme" class="card-front">Hit Me!</div>
                     <div id="birthday" class="card-back">Happy Birthday</br> Livonne!
                         <img src="corgi.png">
                     </div>
@@ -28,22 +28,22 @@
                         It's Nearly time... <br> Click to play a game!
                         <img src="shorthair.png">
                     </div>
+                    <div style="display: none;" id="instructions" class="card-front">
+                        <img src="shorthairTalking.png">
+                    </div>
                 </div>
             </div>
           </div>
         </div>
-        <div style="display: none;" class="cat-container" id="cat-container">
-            <img src="shorthairTalking.png" alt="Cat" class="cat-img">
-            <button class="next-button" id="next-button">Let's Play!</button>
-        </div>
-        <div style="display: none;" class="game-container" id="game-container">
+        <div class="game-container" id="game-container">
         </div>
         <script>
             let birthdayGame = false;
             let clicked = false;
+            let instructionsRead = false;
             let spotifyPlayer;
             const gameContainer = document.getElementById('game-container');
-            const catContainer = document.getElementById('cat-container');
+            const instructions = document.getElementById('instructions');
 
             window.onSpotifyIframeApiReady = (IFrameAPI) => {
                 const element = document.getElementById('embed-iframe');
@@ -72,10 +72,18 @@
 
             }
             function flipCard() {
-                if (birthdayGame) {
+                if (instructionsRead) {
+                    gameContainer.style.display = "grid";
                     document.querySelector('.container').style.display = 'none';
-                    catContainer.style.display = "flex"
                     playGame();
+                    return;
+                }
+                if (birthdayGame) {
+                    instructions.style.display = "flex"
+                    document.getElementById("hitme").style.display = "none"
+                    document.getElementById('card').classList.toggle('flipped');
+                    document.getElementById("notBirthday").style.display = "none"
+                    instructionsRead = true;
                     return;
                 }
                 if (spotifyPlayer) {
@@ -84,7 +92,7 @@
                 document.querySelector('.envelope').classList.add('hidden');
                 document.querySelector('.front').classList.add('hidden');
                 revealCard();
-                document.querySelector('.card').classList.toggle('flipped');
+                document.getElementById('card').classList.toggle('flipped');
                 celebrate(.2, {
                             spread: 30,
                             startVelocity: 60
@@ -111,14 +119,10 @@
             }
 
             function playGame() {
-                document.getElementById('next-button').addEventListener('click', function() {
-                    console.log("flipping")
-                    gameContainer.style.display = "grid";
-                    catContainer.style.display = 'none';
-                });
-                
                  // kitten code
-                const kittenImages = Array.from({ length: 9 }, () => `https://cataas.com/cat/gif?type=square`);
+                 const kittenImages = Array.from({ length: 9 }, () => 
+                    `https://cataas.com/cat/gif?type=square&timestamp=${new Date().getTime()}${Math.random()}`
+                );
                 const prizeImages = [
                     // Mr Krabs Money
                     'https://media1.giphy.com/media/v1.Y2lkPTc5MGI3NjExa2kwejdmbjBkbGJuYjFheXBnczBvMnp0cXBhYXI5dXdob3h2czhqNyZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9Zw/LdOyjZ7io5Msw/giphy.gif',
@@ -129,10 +133,12 @@
                 ];
                 
                 let gameLocked = false;
+                let boxes = []
 
                 kittenImages.forEach((kitten, index) => {
                     const box = document.createElement('div');
                     box.classList.add('kitten-box');
+                    boxes.push(box);
                     
                     const img = document.createElement('img');
                     img.src = kitten;
@@ -154,6 +160,11 @@
                             img.style.display = 'none';
                             prizeImg.style.display = 'block';
                         }, 1000);
+                        boxes.forEach(b => {
+                            if (box !== b) {
+                                b.classList.add('hidden')
+                            }
+                        })
                     });
                 });
             }
@@ -167,7 +178,7 @@
                 if (isMobile()) {
                     $('.container').on('click', function () {
                         if (clicked === false) {
-                            $('.card').stop().animate({
+                            document.getElementById('card-id').stop().animate({
                                     top: '-90px'
                                 }, 'slow');
                             clicked = true;
@@ -178,12 +189,12 @@
                 } else {
                     $('.container').hover(
                         function () {
-                            $('.card').stop().animate({
+                            $('#card').stop().animate({
                                 top: '-90px'
                             }, 'slow');
                         },
                         function () {
-                            $('.card').stop().animate({
+                            $('#card').stop().animate({
                                 top: 0
                             }, 'slow');
                         }
